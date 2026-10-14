@@ -1,0 +1,52 @@
+name: Build WalkingWorld JAR
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v5
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Download Gradle 9.2.1
+        shell: bash
+        run: |
+          curl --fail --location --retry 3 \
+            https://services.gradle.org/distributions/gradle-9.2.1-bin.zip \
+            --output "$RUNNER_TEMP/gradle.zip"
+          unzip -q "$RUNNER_TEMP/gradle.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/gradle-9.2.1/bin" >> "$GITHUB_PATH"
+
+      - name: Build mod
+        run: gradle build --no-daemon --stacktrace
+
+      - name: Upload build logs if build fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: walkingworld-build-logs
+          path: |
+            build/reports/**
+            ~/.gradle/daemon/**/daemon-*.out.log
+          if-no-files-found: ignore
+
+      - name: Upload JAR
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: walkingworld-jar
+          path: build/libs/*.jar
+          if-no-files-found: error
