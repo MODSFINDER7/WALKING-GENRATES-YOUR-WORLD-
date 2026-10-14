@@ -1,0 +1,1 @@
+walking generates your world
