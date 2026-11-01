@@ -16,10 +16,6 @@ public final class TerrainGenerator {
         generatePatch(level, playerPosition, playerPosition.getY() - 1);
     }
 
-    public static void generateAroundProjectile(ServerLevel level, BlockPos impactPosition) {
-        generatePatch(level, impactPosition, impactPosition.getY());
-    }
-
     private static void generatePatch(ServerLevel level, BlockPos center, int baseSurfaceY) {
         for (int x = center.getX() - PATCH_RADIUS; x <= center.getX() + PATCH_RADIUS; x++) {
             for (int z = center.getZ() - PATCH_RADIUS; z <= center.getZ() + PATCH_RADIUS; z++) {
